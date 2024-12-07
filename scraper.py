@@ -16,7 +16,7 @@ def get_global_json(session):
         print(resp.status_code)
         globalVocab = resp.json()
         #create json dump of webpage
-        with open(f'globalVocab.json', 'w', encoding='utf-8') as f:
+        with open(f'data/globalVocab.json', 'w', encoding='utf-8') as f:
             json.dump(globalVocab, f, ensure_ascii=False, indent=4)
     except:
         print("Unable to get global.json")
@@ -60,6 +60,8 @@ def get_winner_data(globalVocab, session, nid_list, results):
             resp.raise_for_status()
             winnerData = resp.json()
 
+            print(f"Saving {nid} data")
+
             #create json dump of webpage
             # with open(f'{item}_data.json', 'w', encoding='utf-8') as f:
             #     json.dump(winnerData, f, ensure_ascii=False, indent=4)
@@ -79,12 +81,13 @@ def get_winner_data(globalVocab, session, nid_list, results):
         except Exception as e:
             print(f"Error occurred with getting data for nid: {nid}, {e}")
     return 
+
 def get_images(results):
     try:
         # Get the directory where scrapper.py is located
         current_dir = Path(__file__).parent
         #setup directory for images
-        output_dir = current_dir / "images" / f"{results["Category"]}"
+        output_dir = current_dir / "images"
         output_dir.mkdir(parents=True, exist_ok=True)
 
         for result in results:
@@ -120,7 +123,7 @@ def main():
         globalVocab = get_global_json(session)
 
         #get a list of winner id values (nid)
-        feature_photography_nid_list = get_category_nids(session, 217, 0, 4)
+        feature_photography_nid_list = get_category_nids(session, 217, 0, 30)
 
 
         #create csv file with image and caption info
@@ -129,7 +132,7 @@ def main():
         get_winner_data(globalVocab, session, feature_photography_nid_list, results)
 
         df = pd.DataFrame(results)
-        df.to_csv('data.csv', index=False, encoding='utf-8')
+        df.to_csv('data/winner_data.csv', index=False, encoding='utf-8')
         print("data saved to a CSV file")
 
         #save images
