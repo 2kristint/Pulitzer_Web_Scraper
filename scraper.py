@@ -17,6 +17,22 @@ def main():
     with cureq.Session() as session:
         session.headers.update(headers)
 
+        #Get global vocabulary
+        try:
+            resp = session.get(
+                "https://www.pulitzer.org/cache/api/1/winners/cat/217/raw.json",
+                impersonate="chrome"
+            )
+            print(resp.status_code)
+            globalVocab = resp.json()
+            #create json dump of webpage
+            with open(f'globalVocab.json', 'w', encoding='utf-8') as f:
+                json.dump(globalVocab, f, ensure_ascii=False, indent=4)
+        except:
+            print("Unable to get global.json")
+        
+        #create a function that looks up tid
+
         #get a list of winner id values
         try:
             resp = session.get(
