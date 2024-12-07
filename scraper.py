@@ -23,10 +23,12 @@ def get_global_json(session):
     return globalVocab
 
 #Translate tid to name
-def get_tid_name():
-    return
+def get_tid_name(globalVocab, search_tid):
+    vocabList = globalVocab["vocabularies"]
+    name = next((ele['name'] for ele in vocabList if ele['tid'] == search_tid), None)
+    return name
 
-def get_category_nids(session, tid_category, num_nids):
+def get_category_nids(session, tid_category, start, end):
     try:
         resp = session.get(
             f"https://www.pulitzer.org/cache/api/1/winners/cat/{tid_category}/raw.json",
@@ -39,13 +41,13 @@ def get_category_nids(session, tid_category, num_nids):
         #     print(f"{key}: {value}")
         winnersList = resp.json()
         all_nid_values = [entry["nid"] for entry in winnersList if "nid" in entry]
-        nid_values = all_nid_values[:num_nids]
+        nid_values = all_nid_values[start:end]
         print(nid_values)
     except Exception as e:
         print(f"Unable to get nid_values. Error: {e}")
     return nid_values
 
-def get_winner_data(session, nid_list, results):
+def get_winner_data(globalVocab, session, nid_list, results):
     for nid in nid_list:
         try:
             resp = session.get(
@@ -60,8 +62,8 @@ def get_winner_data(session, nid_list, results):
             # with open(f'{item}_data.json', 'w', encoding='utf-8') as f:
             #     json.dump(winnerData, f, ensure_ascii=False, indent=4)
             winners  = winnerData["title"]
-            year = winnerData["field_year"]["und"][0]["tid"]
-            fieldCategory = winnerData["field_category"]["und"][0]["tid"]
+            year = get_tid_name(globalVocab, winnerData["field_year"]["und"][0]["tid"])
+            fieldCategory = get_tid_name(globalVocab, winnerData["field_category"]["und"][0]["tid"])
             imageSections = winnerData["field_regular_image_slider"]["und"]
 
             for section in imageSections:
@@ -75,7 +77,6 @@ def get_winner_data(session, nid_list, results):
         except Exception as e:
             print(f"Error occurred with saving images and captions: {e}, nid: {nid}")
     return 
-
 def get_images(results):
     try:
         # Get the directory where scrapper.py is located
@@ -114,23 +115,23 @@ def main():
         session.headers.update(headers)
 
         #Get global vocabulary
-        get_global_json(session)
+        globalVocab = get_global_json(session)
 
         #get a list of winner id values (nid)
-        nid_list = get_category_nids(session, 217, 4)
+        nid_list = get_category_nids(session, 217, 0, 4)
 
         #create csv file with image and caption info
         results = []
         #get data from each winner's page and apend data to results
-        get_winner_data(session, nid_list, results)
+        get_winner_data(globalVocab, session, nid_list, results)
 
         df = pd.DataFrame(results)
         df.to_csv('Feature_Photography(1995-2024).csv', index=False, encoding='utf-8')
         print("data saved to a CSV file")
-
+        return
         #save images
         get_images(results)
-        
+
         return
 
 # source of images: https://www.pulitzer.org/cms/sites/default/files/styles/image_slider/public/ap_migration_001_0.jpeg
