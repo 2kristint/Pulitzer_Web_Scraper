@@ -13,82 +13,85 @@ def main():
     "Accept-Language": "en-US,en;q=0.9",
     "Referer": "https://www.pulitzer.org/",
     }
-    session = cureq.Session()
-    session.headers.update(headers)
-    try:
+
+    with cureq.Session() as session:
+        session.headers.update(headers)
+
         #get a list of winner id values
-        resp = session.get(
-            "https://www.pulitzer.org/cache/api/1/winners/cat/217/raw.json",
-            impersonate="chrome"
-        )
-        print(resp.status_code)
-        #headers for debugging
-        print("\nResponse Headers:")
-        for key, value in resp.headers.items():
-            print(f"{key}: {value}")
-        winnersList = resp.json()
-        nid_values = [entry["nid"] for entry in winnersList if "nid" in entry]
-        print(nid_values)
-
-        #go to each winner webpage and grab images and captions
-
-        results = []
-
-        for item in nid_values[:5]:
+        try:
             resp = session.get(
-                f"https://www.pulitzer.org/cache/api/1/node/{item}/raw.json",
+                "https://www.pulitzer.org/cache/api/1/winners/cat/217/raw.json",
                 impersonate="chrome"
             )
+            print(resp.status_code)
+            # #headers for debugging
+            # print("\nResponse Headers:")
+            # for key, value in resp.headers.items():
+            #     print(f"{key}: {value}")
+            winnersList = resp.json()
+            nid_values = [entry["nid"] for entry in winnersList if "nid" in entry]
+            print(nid_values)
+        except Exception as e:
+            print(f"Unable to get nid_values Error: {e}")
+            #go to each winner webpage and grab images and captions
+        
+        #create csv file
+        results = []
+        for nid in nid_values[:30]: # 2024 - 1995
+            try:
+                resp = session.get(
+                    f"https://www.pulitzer.org/cache/api/1/node/{nid}/raw.json",
+                    impersonate="chrome"
+                )
+                print(f"Saving results from {nid}")
+                resp.raise_for_status()
+                winnerData = resp.json()
 
-            resp.raise_for_status()
-            winnerData = resp.json()
+                #create json dump of webpage
+                # with open(f'{item}_data.json', 'w', encoding='utf-8') as f:
+                #     json.dump(winnerData, f, ensure_ascii=False, indent=4)
 
-            #create json dump of webpage
-            # with open(f'{item}_data.json', 'w', encoding='utf-8') as f:
-            #     json.dump(winnerData, f, ensure_ascii=False, indent=4)
+                imageSections = winnerData["field_regular_image_slider"]["und"]
 
-            imageSections = winnerData["field_regular_image_slider"]["und"]
+                for section in imageSections:
+                    item = section["item"]
+                    image = item["field_slider_image"]["und"][0]["uri"]
+                    caption = item["field_image_caption"]["und"][0]["safe_value"]
 
-            for section in imageSections:
-                item = section["item"]
-                image = item["field_slider_image"]["und"][0]["uri"]
-                caption = item["field_image_caption"]["und"][0]["safe_value"]
-
-                if image or caption:
-                    results.append({"image_url": image or "", "caption": caption or ""})
-
-            time.sleep(10)
-
-        #save images
+                    if image or caption:
+                        results.append({"image_url": image or "", "caption": caption or ""})
+                time.sleep(10)
+            except Exception as e:
+                print(f"Error occured with saving images and captions: {e}, nid: {nid}")
+            #save images
 
         df = pd.DataFrame(results)
-        df.to_csv('imagesNcaptions.csv', index=False, encoding='utf-8')
-
+        df.to_csv('Feature_Photography(1995-2024).csv', index=False, encoding='utf-8')
         print("data saved to a CSV file")
 
+    #save images
+    try:
         # Get the directory where scrapper.py is located
         current_dir = Path(__file__).parent
         #setup directory for images
-        output_dir = current_dir / "images1"
+        output_dir = current_dir / "images" / "Feature_Photography(1995-2024)"
         output_dir.mkdir(parents=True, exist_ok=True)
 
         for result in results:
             try:
-                image_content = requests.get(f"https://www.pulitzer.org/cms/sites/default/files/styles/image_slider/public/{result["image_url"][8:]}").content
+                image_url = result["image_url"][8:]
+                sanitized_filename = "".join(c if c.isalnum() or c in (' ', '.', '_', '-') else '_' for c in image_url) + ".png"
+                image_content = requests.get(f"https://www.pulitzer.org/cms/sites/default/files/styles/image_slider/public/{image_url}").content
                 image_file = io.BytesIO(image_content)
                 image = Image.open(image_file).convert("RGB")
-                file_path = output_dir / (hashlib.sha1(image_content).hexdigest()[:10] + ".png")
+                file_path = output_dir / sanitized_filename
                 image.save(file_path, "PNG", quality=80)
             except:
                 print(f"This image was not able to be saved {result["image_url"]}")
 
-        print(f"'images1' folder created at: {output_dir}")
-    
+        print(f"'images' folder created at: {output_dir}")
     except requests.exceptions.RequestException as e:
-        print(f"An error occured: {e}")
-
-    finally:
-        session.close()  # Ensure the session is closed
+        print(f"An error occured: {e}, unable to save images")
     return
 
 # source of images: https://www.pulitzer.org/cms/sites/default/files/styles/image_slider/public/ap_migration_001_0.jpeg
