@@ -26,6 +26,8 @@ def get_global_json(session):
 def get_tid_name(globalVocab, search_tid):
     vocabList = globalVocab["vocabularies"]
     name = next((ele['name'] for ele in vocabList if ele['tid'] == search_tid), None)
+    if (name == None):
+        print(f"{search_tid} unable to be found")
     return name
 
 def get_category_nids(session, tid_category, start, end):
@@ -44,7 +46,7 @@ def get_category_nids(session, tid_category, start, end):
         nid_values = all_nid_values[start:end]
         print(nid_values)
     except Exception as e:
-        print(f"Unable to get nid_values. Error: {e}")
+        print(f"Unable to get nid_values for {tid_category} Error: {e}")
     return nid_values
 
 def get_winner_data(globalVocab, session, nid_list, results):
@@ -75,14 +77,14 @@ def get_winner_data(globalVocab, session, nid_list, results):
                     results.append({"Category": fieldCategory, "Year": year, "nid" : nid, "Winners": winners or "", "Image_URL": image or "", "Caption": caption or ""})
             time.sleep(10)
         except Exception as e:
-            print(f"Error occurred with saving images and captions: {e}, nid: {nid}")
+            print(f"Error occurred with getting data for nid: {nid}, {e}")
     return 
 def get_images(results):
     try:
         # Get the directory where scrapper.py is located
         current_dir = Path(__file__).parent
         #setup directory for images
-        output_dir = current_dir / "images" / "Feature_Photography(1995-2025)"
+        output_dir = current_dir / "images" / f"{results["Category"]}"
         output_dir.mkdir(parents=True, exist_ok=True)
 
         for result in results:
@@ -118,17 +120,18 @@ def main():
         globalVocab = get_global_json(session)
 
         #get a list of winner id values (nid)
-        nid_list = get_category_nids(session, 217, 0, 4)
+        feature_photography_nid_list = get_category_nids(session, 217, 0, 4)
+
 
         #create csv file with image and caption info
         results = []
         #get data from each winner's page and apend data to results
-        get_winner_data(globalVocab, session, nid_list, results)
+        get_winner_data(globalVocab, session, feature_photography_nid_list, results)
 
         df = pd.DataFrame(results)
-        df.to_csv('Feature_Photography(1995-2024).csv', index=False, encoding='utf-8')
+        df.to_csv('data.csv', index=False, encoding='utf-8')
         print("data saved to a CSV file")
-        return
+
         #save images
         get_images(results)
 
