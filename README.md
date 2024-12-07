@@ -29,18 +29,11 @@ https://medium.com/ubiai-nlp/fine-tuning-spacy-models-customizing-named-entity-r
     pandas - data organization
 
 
-# create virtual environment
 
+imports:
 
-# Instructions
-
-Install all required dependencies
-
-~ pip install -r requirements.txt
-or
 pip install curl-cffi requests pandas pillow
 
-Run scraper
 
-
+# create virtual environment
 
