@@ -1,0 +1,94 @@
+200
+200
+['22525', '22068', '21685', '21268', '16954', '15993', '15087', '14768', '14443', '7236', '7213', '7183', '7168', '7148', '7126', '7093', '7068', '5667', '7026', '7005', '6985', '6964', '6943', '6921', '6900', '6878', '6857', '6835', '6815', '6794']
+200
+['22524', '22064', '21683', '21689', '21263', '16951', '15991', '15085', '14766', '14435', '14441', '7234', '7212', '7192', '7167', '7147', '7125', '7079', '7067', '7036', '7019', '6997', '6977', '6956', '6935']
+200
+['6889', '6868', '6846', '6826', '6805', '6784', '6764', '6743', '6723', '6702', '6680', '6657', '6635', '6612', '6590']
+Getting Feature Photography data
+Saving 22525 data
+Saving 22068 data
+Saving 21685 data
+Saving 21268 data
+Saving 16954 data
+Saving 15993 data
+Saving 15087 data
+Saving 14768 data
+Saving 14443 data
+Saving 7236 data
+Saving 7213 data
+Saving 7183 data
+Saving 7168 data
+Saving 7148 data
+Saving 7126 data
+Saving 7093 data
+Saving 7068 data
+Saving 5667 data
+Saving 7026 data
+Saving 7005 data
+Saving 6985 data
+Saving 6964 data
+Saving 6943 data
+Saving 6921 data
+Saving 6900 data
+Saving 6878 data
+Saving 6857 data
+Saving 6835 data
+Saving 6815 data
+Error occurred with getting data for nid: 6815, list indices must be integers or slices, not str
+Saving 6794 data
+Getting Breaking News Photography data
+Saving 22524 data
+Saving 22064 data
+Saving 21683 data
+Saving 21689 data
+Saving 21263 data
+Saving 16951 data
+Saving 15991 data
+Saving 15085 data
+Saving 14766 data
+Saving 14435 data
+Saving 14441 data
+Saving 7234 data
+Saving 7212 data
+Saving 7192 data
+Saving 7167 data
+Saving 7147 data
+Saving 7125 data
+Saving 7079 data
+Error occurred with getting data for nid: 7079, list indices must be integers or slices, not str
+Saving 7067 data
+Saving 7036 data
+Saving 7019 data
+Saving 6997 data
+Saving 6977 data
+Saving 6956 data
+Saving 6935 data
+Getting Spot News Photography data
+Saving 6889 data
+Saving 6868 data
+Saving 6846 data
+Saving 6826 data
+Error occurred with getting data for nid: 6826, list indices must be integers or slices, not str
+Saving 6805 data
+Error occurred with getting data for nid: 6805, list indices must be integers or slices, not str
+Saving 6784 data
+Error occurred with getting data for nid: 6784, list indices must be integers or slices, not str
+Saving 6764 data
+Saving 6743 data
+Error occurred with getting data for nid: 6743, list indices must be integers or slices, not str
+Saving 6723 data
+Error occurred with getting data for nid: 6723, list indices must be integers or slices, not str
+Saving 6702 data
+Error occurred with getting data for nid: 6702, list indices must be integers or slices, not str
+Saving 6680 data
+Error occurred with getting data for nid: 6680, list indices must be integers or slices, not str
+Saving 6657 data
+Error occurred with getting data for nid: 6657, list indices must be integers or slices, not str
+Saving 6635 data
+Error occurred with getting data for nid: 6635, list indices must be integers or slices, not str
+Saving 6612 data
+Error occurred with getting data for nid: 6612, list indices must be integers or slices, not str
+Saving 6590 data
+data saved to a CSV file
+'images' folder created at: c:\Users\2kris\Documents\Code\Pulitzer_Web_Scraper\images

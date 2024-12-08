@@ -124,13 +124,19 @@ def main():
 
         #get a list of winner id values (nid)
         feature_photography_nid_list = get_category_nids(session, 217, 0, 30)
+        breaking_news_photography_nid_list = get_category_nids(session, 216, 0, 25)
+        spot_news_photography_nid_list = get_category_nids(session, 274, 0, 15)
 
 
         #create csv file with image and caption info
         results = []
         #get data from each winner's page and apend data to results
+        print("Getting Feature Photography data")
         get_winner_data(globalVocab, session, feature_photography_nid_list, results)
-
+        print("Getting Breaking News Photography data")
+        get_winner_data(globalVocab, session, breaking_news_photography_nid_list, results)
+        print("Getting Spot News Photography data")
+        get_winner_data(globalVocab, session, spot_news_photography_nid_list, results)
         df = pd.DataFrame(results)
         df.to_csv('data/winner_data.csv', index=False, encoding='utf-8')
         print("data saved to a CSV file")
