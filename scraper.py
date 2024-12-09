@@ -6,6 +6,7 @@ from PIL import Image
 from pathlib import Path
 import spacy 
 import re
+from tqdm import tqdm
 
 nlp = spacy.load('en_core_web_lg') 
 
@@ -49,6 +50,7 @@ def get_category_nids(session, tid_category, start, end):
         all_nid_values = [entry["nid"] for entry in winnersList if "nid" in entry]
         nid_values = all_nid_values[start:end]
         print(nid_values)
+        time.sleep(10)
     except Exception as e:
         print(f"Unable to get nid_values for {tid_category} Error: {e}")
     return nid_values
@@ -58,8 +60,12 @@ def extract_tokens(text):
     """ Extracts tokens from text using spaCy's NLP model. """
     if not text:
         return []
-    doc = nlp(text)
-    return [{"text": token.text, "start_char": token.start_char, "end_char": token.end_char, "label": token.label_} for token in doc.ents]
+    try:
+        doc = nlp(text)
+        return [{"text": token.text, "start_char": token.start_char, "end_char": token.end_char, "label": token.label_} for token in doc.ents]
+    except Exception as e:
+        print(f"Error processing text with spaCy: {e}")
+        return []
 
 def extract_parentheses_text(caption):
     """ Extracts the text inside parentheses from the caption. """
@@ -83,10 +89,6 @@ def split_caption(winner, caption):
     captionTokens = extract_tokens(preprocessedCaption)
     parenthesesText = extract_parentheses_text(preprocessedCaption)
     parenthesesTokens = extract_tokens(parenthesesText)
-
-    print("Winner Tokens:", winnerTokens)
-    print("Caption Tokens:", captionTokens)
-    print("Parentheses Tokens:", parenthesesTokens)
 
     # look for names in winner
     photographers = [ele['text'] for ele in winnerTokens if ele['label'] == "PERSON"]
@@ -119,7 +121,7 @@ def split_caption(winner, caption):
     return group, organization, photographer, locations
 
 def get_winner_data(globalVocab, session, nid_list, results):
-    for nid in nid_list:
+    for nid in tqdm(nid_list):
         try:
             resp = session.get(
                 f"https://www.pulitzer.org/cache/api/1/node/{nid}/raw.json",
@@ -127,8 +129,9 @@ def get_winner_data(globalVocab, session, nid_list, results):
             )
 
             resp.raise_for_status()
+            print(f"Success: {nid} - {resp.status_code}")
+            
             winnerData = resp.json()
-
             print(f"Saving {nid} data")
 
             #create json dump of webpage
@@ -153,10 +156,12 @@ def get_winner_data(globalVocab, session, nid_list, results):
                 except:
                     caption = "N/A"
 
-                if image:
+                if image or caption:
                     # grab data from caption and compare to winners data
-                    group, organization, photographer, locations = split_caption(winners, caption)
-                    # add data to csv
+                    try:
+                        group, organization, photographer, locations = split_caption(winners, caption)
+                    except:
+                        print("Error occured in split caption")
                     results.append({"Image_URL": image or "", 
                                     "Category": fieldCategory, 
                                     "Year": year, 
@@ -165,8 +170,6 @@ def get_winner_data(globalVocab, session, nid_list, results):
                                     "Organization": organization or "", 
                                     "Locations": locations or "", 
                                     "Caption": caption or ""})
-                    # add image to folder
-                    
             time.sleep(10)
         except Exception as e:
             print(f"Error occurred with getting data for nid: {nid}, {e}")
@@ -190,7 +193,7 @@ def get_images(results):
                 file_path = output_dir / sanitized_filename
                 image.save(file_path, "PNG", quality=80)
             except:
-                print(f"This image was not able to be saved {result["image_url"]}")
+                print(f"This image was not able to be saved {result["Image_URL"]}")
 
         print(f"'images' folder created at: {output_dir}")
     except Exception as e:
@@ -227,15 +230,19 @@ def main():
         get_winner_data(globalVocab, session, breaking_news_photography_nid_list, results)
         print("Getting Spot News Photography data")
         get_winner_data(globalVocab, session, spot_news_photography_nid_list, results)
+
+        #update csv file
         df = pd.DataFrame(results)
         df.to_csv('data/winner_data.csv', index=False, encoding='utf-8')
         print("data saved to a CSV file")
 
         #save images
         get_images(results)
+        print("Images saved")
 
         return
 
 # source of images: https://www.pulitzer.org/cms/sites/default/files/styles/image_slider/public/ap_migration_001_0.jpeg
 
 main()
+print("🎉 All tasks completed successfully!")
