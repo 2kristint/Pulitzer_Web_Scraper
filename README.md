@@ -10,38 +10,7 @@
     •	Competition Category (e.g. Spot News, Breaking News, Feature Photography)
     •	Caption
 
-
-img_file | Competition Category | Date (Year) | Group | Photographer | Organization | caption 
-
-
-- to get author, group, organization name
-    - if unable to locate name in title?
-        - group name
-        - if "of" in title
-            - after "of" is organization
-    - if able to locate 1 name in title
-        - if there is not an "of"
-            - title is photographer name
-        - if there is an "of"
-            - locate parentheses ()
-            - use language to identify name
-            - after "of" is organization name
-    - if able to locate +1 name in title
-        - names are group award
-        - after "of" is organization
-        - or locate parentheses (/organization name)
-- to get location
-    - use the API to locate all locations in the caption and save to an array to be sorted manually
-
-
-GOAL: create python script that produces folder of pictures and csv file
-
-# start at website and go to link
-# grab image from page using beautiful soup
-# download image on page
-# rename image in folder
-# grab information associated with image
-
+Resources
 https://stackoverflow.com/questions/30229231/python-save-image-from-url
 https://oxylabs.io/blog/python-web-scraping
 https://oxylabs.io/blog/scrape-images-from-website

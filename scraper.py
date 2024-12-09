@@ -154,14 +154,15 @@ def get_winner_data(globalVocab, session, nid_list, results):
                 try:
                     caption = item["field_image_caption"]["und"][0]["safe_value"]
                 except:
-                    caption = "N/A"
+                    caption = None
 
-                if image or caption:
+                if image:
                     # grab data from caption and compare to winners data
-                    try:
-                        group, organization, photographer, locations = split_caption(winners, caption)
-                    except:
-                        print("Error occured in split caption")
+                    if caption:
+                        try:
+                            group, organization, photographer, locations = split_caption(winners, caption)
+                        except:
+                            print("Error occured in split caption")
                     results.append({"Image_URL": image or "", 
                                     "Category": fieldCategory, 
                                     "Year": year, 
@@ -183,7 +184,7 @@ def get_images(results):
         output_dir = current_dir / "images"
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        for result in results:
+        for result in tqdm(results):
             try:
                 image_url = result["Image_URL"]
                 sanitized_filename = "".join(c if c.isalnum() or c in (' ', '.', '_', '-') else '_' for c in image_url) + ".png"
