@@ -4,6 +4,10 @@ import time
 import io, requests, pandas as pd
 from PIL import Image
 from pathlib import Path
+import spacy 
+import re
+
+nlp = spacy.load('en_core_web_lg') 
 
 #** Pulitzer Prizes uses an id system to note prize categories and years for webpages, 
 # to translate the id to text and numbers we can recognize we must grab global.json
@@ -49,6 +53,71 @@ def get_category_nids(session, tid_category, start, end):
         print(f"Unable to get nid_values for {tid_category} Error: {e}")
     return nid_values
 
+
+def extract_tokens(text):
+    """ Extracts tokens from text using spaCy's NLP model. """
+    if not text:
+        return []
+    doc = nlp(text)
+    return [{"text": token.text, "start_char": token.start_char, "end_char": token.end_char, "label": token.label_} for token in doc.ents]
+
+def extract_parentheses_text(caption):
+    """ Extracts the text inside parentheses from the caption. """
+    match = re.search(r'\(([^)]+)\)', caption)
+    return match.group(1) if match else ""
+
+def split_caption(winner, caption):
+
+    # looking for these values
+    group = None
+    photographers = None
+    organization = None
+    locations = None
+
+    # caption may have formating that intrudes in spacy analysis 
+    # (text formatted like AP Photo/Fernando LLano is read as one token and photographer is not able to be identified)
+    preprocessedCaption = re.sub(r'[/]', ', ', caption)
+    
+    # Extract all tokens
+    winnerTokens = extract_tokens(winner)
+    captionTokens = extract_tokens(preprocessedCaption)
+    parenthesesText = extract_parentheses_text(preprocessedCaption)
+    parenthesesTokens = extract_tokens(parenthesesText)
+
+    print("Winner Tokens:", winnerTokens)
+    print("Caption Tokens:", captionTokens)
+    print("Parentheses Tokens:", parenthesesTokens)
+
+    # look for names in winner
+    photographers = [ele['text'] for ele in winnerTokens if ele['label'] == "PERSON"]
+
+    #there are no names in winner
+    if len(photographers) != 1:
+        # must be a group name
+        group = winner
+        # is there "of" in the title? then organization name is after
+        if "of" in winner:
+            organization = winner.split("of", 1)[1].strip()
+        else:
+            #look in parentheses for organization
+            organization = next((ele['text'] for ele in parenthesesTokens if ele['label'] == "ORG"), None)
+        # look for name in caption
+        photographer = next((ele['text'] for ele in parenthesesTokens if ele['label'] == "PERSON"), None)
+    #there is one name in winner
+    else:
+        photographer = photographers[0]
+        # is there "of" in the title? then organization name is after
+        if "of" in winner:
+            organization = winner.split("of", 1)[1].strip()
+            # then photographer name is in caption ()
+        elif parenthesesText:
+                organization = next((ele['text'] for ele in parenthesesTokens if ele['label'] == "ORG"), None)
+
+     # Extract locations from caption tokens
+    locations = list({ele['text'] for ele in captionTokens if ele['label'] in ("GPE", "LOC")})  # Use a set to avoid duplicates
+
+    return group, organization, photographer, locations
+
 def get_winner_data(globalVocab, session, nid_list, results):
     for nid in nid_list:
         try:
@@ -84,8 +153,20 @@ def get_winner_data(globalVocab, session, nid_list, results):
                 except:
                     caption = "N/A"
 
-                if image or caption:
-                    results.append({"Image_URL": image or "", "Category": fieldCategory, "Year": year, "Winners": winners or "", "Caption": caption or ""})
+                if image:
+                    # grab data from caption and compare to winners data
+                    group, organization, photographer, locations = split_caption(winners, caption)
+                    # add data to csv
+                    results.append({"Image_URL": image or "", 
+                                    "Category": fieldCategory, 
+                                    "Year": year, 
+                                    "Group": group or "", 
+                                    "Photographer": photographer or "", 
+                                    "Organization": organization or "", 
+                                    "Locations": locations or "", 
+                                    "Caption": caption or ""})
+                    # add image to folder
+                    
             time.sleep(10)
         except Exception as e:
             print(f"Error occurred with getting data for nid: {nid}, {e}")

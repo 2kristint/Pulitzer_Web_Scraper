@@ -22,8 +22,21 @@
 """
 
 import spacy 
-from spacy import displacy
+import re
   
+nlp = spacy.load('en_core_web_lg') 
+
+def extract_tokens(text):
+    """ Extracts tokens from text using spaCy's NLP model. """
+    if not text:
+        return []
+    doc = nlp(text)
+    return [{"text": token.text, "start_char": token.start_char, "end_char": token.end_char, "label": token.label_} for token in doc.ents]
+
+def extract_parentheses_text(caption):
+    """ Extracts the text inside parentheses from the caption. """
+    match = re.search(r'\(([^)]+)\)', caption)
+    return match.group(1) if match else ""
 
 def split_caption(winner, caption):
 
@@ -31,71 +44,52 @@ def split_caption(winner, caption):
     group = None
     photographers = None
     organization = None
+    locations = None
 
-    nlp = spacy.load('en_core_web_lg') 
+    # caption may have formating that intrudes in spacy analysis 
+    # (text formatted like AP Photo/Fernando LLano is read as one token and photographer is not able to be identified)
+    preprocessedCaption = re.sub(r'[/]', ', ', caption)
     
-    winnerDoc = nlp(winner) 
-    winnerTokens = []
-    # create an array for winner tokens
-    for token in winnerDoc.ents: 
-        winnerTokens.append({"text": token.text, "start_char":token.start_char, "end_char":token.end_char, "label":token.label_}) 
-    
-    captionAllDoc =  nlp(caption)
-    captionAllTokens = []
-    # create an array for caption tokens
-    for token in captionAllDoc.ents: 
-        captionAllTokens.append({"text": token.text, "start_char":token.start_char, "end_char":token.end_char, "label":token.label_}) 
+    # Extract all tokens
+    winnerTokens = extract_tokens(winner)
+    captionTokens = extract_tokens(preprocessedCaption)
+    parenthesesText = extract_parentheses_text(preprocessedCaption)
+    parenthesesTokens = extract_tokens(parenthesesText)
 
-    # check if there are parentheses in caption, if there are save into a string
-    parenthesesString = ""
-    captionEndDoc =  nlp(parenthesesString)
-    captionEndTokens = []
-    # create an array for caption tokens
-    for token in captionEndDoc.ents: 
-        captionEndTokens.append({"text": token.text, "start_char":token.start_char, "end_char":token.end_char, "label":token.label_}) 
-
-    print(winnerTokens)
-    print(captionAllTokens)
+    print("Winner Tokens:", winnerTokens)
+    print("Caption Tokens:", captionTokens)
+    print("Parentheses Tokens:", parenthesesTokens)
 
     # look for names in winner
-    photographers = next((ele['text'] for ele in winnerTokens if ele['label'] == "PERSON"), None)
+    photographers = [ele['text'] for ele in winnerTokens if ele['label'] == "PERSON"]
 
     #there are no names in winner
-    if (photographers == None | photographer.length > 1):
+    if len(photographers) != 1:
         # must be a group name
         group = winner
         # is there "of" in the title? then organization name is after
-        if ("of" *is in* winner):
-            organization = winner[*index of of*:]
+        if "of" in winner:
+            organization = winner.split("of", 1)[1].strip()
         else:
-            #look in caption for organization
-            organization = next((ele['text'] for ele in captionEndTokens if ele['label'] == "ORG"), None)
+            #look in parentheses for organization
+            organization = next((ele['text'] for ele in parenthesesTokens if ele['label'] == "ORG"), None)
         # look for name in caption
-        photographer = next((ele['text'] for ele in captionEndTokens if ele['label'] == "PERSON"), None)
-
+        photographer = next((ele['text'] for ele in parenthesesTokens if ele['label'] == "PERSON"), None)
     #there is one name in winner
-    else (photographers.length == 1):
+    else:
+        photographer = photographers[0]
         # is there "of" in the title? then organization name is after
-        if ("of" *is in* winner):
-            organization = winner[*index of of*:]
+        if "of" in winner:
+            organization = winner.split("of", 1)[1].strip()
             # then photographer name is in caption ()
-            if parenthesesString != None:
-                photographer = next((ele['text'] for ele in captionEndTokens if ele['label'] == "PERSON"), None)
-        else:
-            photographer = winner
-            # organization name may be in parentheses
-            if parenthesesString != None:
-                organization = next((ele['text'] for ele in captionEndTokens if ele['label'] == "ORG"), None)
-    return 
+        elif parenthesesText:
+                organization = next((ele['text'] for ele in parenthesesTokens if ele['label'] == "ORG"), None)
 
-    
-    
+     # Extract locations from caption tokens
+    locations = list({ele['text'] for ele in captionTokens if ele['label'] in ("GPE", "LOC")})  # Use a set to avoid duplicates
 
-    
-    print(winnerTokens)
-    print(captionTokens)
+    return group, organization, photographer, locations
 
-    return 
 
-split_caption("Charles Porter IV", "(April 19. 1995, Charles Porter IV distributed by Associated Press)")
+print(split_caption("Photography Staff of Associated Press", "A Venezuelan migrant stands covered in a wrap while texting, on the banks of the Rio Grande in Matamoros, Mexico, Saturday, May 13, 2023. (AP Photo/Fernando Llano)"))
 
