@@ -35,7 +35,6 @@ Saving 6878 data
 Saving 6857 data
 Saving 6835 data
 Saving 6815 data
-Error occurred with getting data for nid: 6815, list indices must be integers or slices, not str
 Saving 6794 data
 Getting Breaking News Photography data
 Saving 22524 data
@@ -56,7 +55,6 @@ Saving 7167 data
 Saving 7147 data
 Saving 7125 data
 Saving 7079 data
-Error occurred with getting data for nid: 7079, list indices must be integers or slices, not str
 Saving 7067 data
 Saving 7036 data
 Saving 7019 data
@@ -71,7 +69,6 @@ Saving 6846 data
 Saving 6826 data
 Error occurred with getting data for nid: 6826, list indices must be integers or slices, not str
 Saving 6805 data
-Error occurred with getting data for nid: 6805, list indices must be integers or slices, not str
 Saving 6784 data
 Error occurred with getting data for nid: 6784, list indices must be integers or slices, not str
 Saving 6764 data
@@ -91,4 +88,3 @@ Saving 6612 data
 Error occurred with getting data for nid: 6612, list indices must be integers or slices, not str
 Saving 6590 data
 data saved to a CSV file
-'images' folder created at: c:\Users\2kris\Documents\Code\Pulitzer_Web_Scraper\images

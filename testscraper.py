@@ -1,7 +1,7 @@
 from curl_cffi import requests as cureq
 import json
 import time
-import io, requests, pandas as pd
+import hashlib, io, requests, pandas as pd
 from PIL import Image
 from pathlib import Path
 
@@ -49,6 +49,8 @@ def get_category_nids(session, tid_category, start, end):
         print(f"Unable to get nid_values for {tid_category} Error: {e}")
     return nid_values
 
+#get more information from caption and winners
+
 def get_winner_data(globalVocab, session, nid_list, results):
     for nid in nid_list:
         try:
@@ -62,30 +64,37 @@ def get_winner_data(globalVocab, session, nid_list, results):
 
             print(f"Saving {nid} data")
 
-            #create json dump of webpage
-            # with open(f'{item}_data.json', 'w', encoding='utf-8') as f:
-            #     json.dump(winnerData, f, ensure_ascii=False, indent=4)
-
+            # create json dump of webpage
+            with open(f'winner_data.json', 'w', encoding='utf-8') as f:
+                json.dump(winnerData, f, ensure_ascii=False, indent=4)
+            
             winners  = winnerData["title"]
+            print(winners)
             year = get_tid_name(globalVocab, winnerData["field_year"]["und"][0]["tid"])
+            print(year)
             fieldCategory = get_tid_name(globalVocab, winnerData["field_category"]["und"][0]["tid"])
+            print(fieldCategory)
             imageSections = winnerData["field_regular_image_slider"]["und"]
 
             for section in imageSections:
                 item = section["item"]
+                print(item)
                 # some sections don't have images
                 try:
                     image = item["field_slider_image"]["und"][0]["uri"][9:]
                 except:
                     continue
-                # some images have no captions
+                print(image)
                 try:
                     caption = item["field_image_caption"]["und"][0]["safe_value"]
                 except:
                     caption = "N/A"
+                print(caption)
 
                 if image or caption:
-                    results.append({"Image_URL": image or "", "Category": fieldCategory, "Year": year, "Winners": winners or "", "Caption": caption or ""})
+                    results.append({"Category": fieldCategory, "Year": year, "nid" : nid, "Winners": winners or "", "Image_URL": image or "", "Caption": caption or ""})
+                    print(image)
+                    print(caption)
             time.sleep(10)
         except Exception as e:
             print(f"Error occurred with getting data for nid: {nid}, {e}")
@@ -131,21 +140,12 @@ def main():
         #Get global vocabulary
         globalVocab = get_global_json(session)
 
-        #get a list of winner id values (nid)
-        feature_photography_nid_list = get_category_nids(session, 217, 0, 30)
-        breaking_news_photography_nid_list = get_category_nids(session, 216, 0, 25)
-        spot_news_photography_nid_list = get_category_nids(session, 274, 0, 15)
-
-
         #create csv file with image and caption info
         results = []
         #get data from each winner's page and apend data to results
-        print("Getting Feature Photography data")
-        get_winner_data(globalVocab, session, feature_photography_nid_list, results)
-        print("Getting Breaking News Photography data")
-        get_winner_data(globalVocab, session, breaking_news_photography_nid_list, results)
-        print("Getting Spot News Photography data")
-        get_winner_data(globalVocab, session, spot_news_photography_nid_list, results)
+
+        get_winner_data(globalVocab, session, [6826], results)
+
         df = pd.DataFrame(results)
         df.to_csv('data/winner_data.csv', index=False, encoding='utf-8')
         print("data saved to a CSV file")
