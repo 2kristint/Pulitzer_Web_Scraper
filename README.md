@@ -15,11 +15,11 @@ This Python script scrapes Pulitzer Prize-winning photography data and images fr
 6. Download Images: Images are downloaded and saved in the images folder.
 
 ## Files Created
-<ul>
-<li>`data/globalVocab.json`: JSON file with category-year mappings.
-<li>`data/winner_data.csv`: CSV file with image data (URL, category, year, caption, etc.).
-<li>`images/`: Directory containing all the images from Pulitzer Prize-winning photographs.
-</ul>
+
+`data/globalVocab.json`: JSON file with category-year mappings <br>
+`data/winner_data.csv`: CSV file with image data (URL, category, year, caption, etc.) <br>
+`images/`: Directory containing all the images from Pulitzer Prize-winning photographs <br>
+
 ## Built With
 
 ### Python Libraries:
