@@ -2,7 +2,7 @@
 
 <!-- PROJECT LOGO -->
 
-# Pulitizer Web Scraper
+# Pulitzer Web Scraper
 
 This Python script scrapes Pulitzer Prize-winning photography data and images from the official Pulitzer Prize website. It collects information such as image URLs, captions, photographers, organizations, and locations for select photo categories, then saves the data as a CSV file and downloads the images locally.
 
