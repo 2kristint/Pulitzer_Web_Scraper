@@ -154,7 +154,7 @@ def get_winner_data(globalVocab, session, nid_list, results):
                 try:
                     caption = item["field_image_caption"]["und"][0]["safe_value"]
                 except:
-                    caption = None
+                    caption = "N/A"
 
                 if image:
                     # grab data from caption and compare to winners data
