@@ -15453,8 +15453,8 @@
         {
             "nid": "22310",
             "type": "news",
-            "title": "Reminder: 2024 Drama and Music Deadlines",
-            "path_alias": "news/reminder-2024-drama-and-music-deadlines"
+            "title": "Reminder: 2025 Drama and Music Deadlines",
+            "path_alias": "news/reminder-2025-drama-and-music-deadlines"
         },
         {
             "nid": "22311",
@@ -31007,6 +31007,7 @@
         "page/jackson": "node/22607",
         "news/tktk": "node/22617",
         "page/2024-journalism-submission-guidelines-requirements-and-faqs": "node/14037",
+        "news/reminder-2024-drama-and-music-deadlines": "node/22310",
         "award-category/journalism": "taxonomy/term/257",
         "award-category/books-drama-music": "taxonomy/term/258",
         "award-category/special-citations": "taxonomy/term/259",
@@ -36230,7 +36231,7 @@
         "news/pulitzer-road-austin-author-hernan-diaz-and-journalist-eli-saslow": "node/22297",
         "news/2023-pulitzer-prize-awards-ceremony": "node/22299",
         "news/pulitzer-board-allows-broadcast-media-sites-enter-journalism-prizes": "node/22303",
-        "news/reminder-2024-drama-and-music-deadlines": "node/22310",
+        "news/reminder-2025-drama-and-music-deadlines": "node/22310",
         "news/2024-pulitzer-prize-journalism-competition-precis-entrants": "node/22311",
         "news/pulitzer-prize-board-announces-special-financial-awards": "node/22323",
         "news/pulitzer-road-dripping-springs-author-hernan-diaz-and-journalist-eli-saslow": "node/22325",

@@ -1,10 +1,6 @@
-<a name="readme-top"></a>
-
-<!-- PROJECT LOGO -->
-
 # Pulitzer Web Scraper
 
-This Python script scrapes Pulitzer Prize-winning photography data and images from the official Pulitzer Prize website. It collects information such as image URLs, captions, photographers, organizations, and locations for select photo categories, then saves the data as a CSV file and downloads the images locally.
+This Jupyter Notebook/Python script scrapes Pulitzer Prize-winning photography data and images from the official Pulitzer Prize website. It collects information such as image URLs, captions, photographers, organizations, and locations for select photo categories, then saves the data as a CSV file and downloads the images locally.
 
 ## How It Works
 1. Initialize Web Session: Uses curl_cffi to start a browser-like session to avoid bot detection.
@@ -32,7 +28,7 @@ This Python script scrapes Pulitzer Prize-winning photography data and images fr
 <li>tqdm - Progress bar for tracking scraping status.
 </ul>
 
-## Getting Started
+## Running scraper.py python file
 
 ### Prerequisites
 
@@ -40,7 +36,7 @@ This Python script scrapes Pulitzer Prize-winning photography data and images fr
 
 ### Installation
 
-Create virtual environment
+Create virtual environment (recommended)
 
 Install the Python packages from `requirements.txt`
 
@@ -52,7 +48,7 @@ Alternatively, you can download each required package individually:
 
 ```
 pip install curl-cffi requests pandas pillow spacy
-python -m spacy download en_core_web_lg
+python -m spacy download en_core_web_sm
 ```
 
 ## Usage
@@ -72,11 +68,4 @@ python scraper.py
     <li>[Spacy usage](https://www.geeksforgeeks.org/python-named-entity-recognition-ner-using-spacy/)
 </ul>
 
-<!-- To Do List -->
-<!--
-- Debug caption split
-- image file names saved as name.jpg.png
-- manually check images against csv file
-- make more efficient
--->
 
