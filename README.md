@@ -44,13 +44,6 @@ Install the Python packages from `requirements.txt`
 pip install -r requirements.txt
 ```
 
-Alternatively, you can download each required package individually:
-
-```
-pip install curl-cffi requests pandas pillow spacy
-python -m spacy download en_core_web_sm
-```
-
 ## Usage
 
 To run the project locally run the command:
