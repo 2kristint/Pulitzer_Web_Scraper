@@ -14,7 +14,7 @@ nlp = spacy.load('en_core_web_sm')
 
 # Set up directory for images
 current_dir = Path(__file__).parent
-output_dir = current_dir / "images2"
+output_dir = current_dir / "images"
 output_dir.mkdir(parents=True, exist_ok=True)
 
 # Get global JSON. Global JSON is a dictionary in which we can translate the tid values on specific winner webpages to categories and years. 
@@ -26,12 +26,11 @@ def get_global_json(session):
             impersonate="chrome",
             timeout = 10
         )
-        print(f"Able to get global JSON successfully with response code: {resp.status_code}")
         globalVocab = resp.json()
         with open(f'data/globalVocab.json', 'w', encoding='utf-8') as f:
             json.dump(globalVocab, f, ensure_ascii=False, indent=4)
     except:
-        print("Unable to get global JSON. Please try running the code again.")
+        print(f"Unable to get global JSON. Please try running the code again. Response code {resp.status_code}")
     return globalVocab
 
 # Translate tid to name. Searches global JSON for the tid, in order to find the name associated with it.
@@ -182,7 +181,7 @@ def get_winner_data(globalVocab, session, nid_list):
                     
             # Write image data to csv file
             df = pd.DataFrame(imageData)
-            df.to_csv('data/winner_data2.csv', mode='a', index=False, encoding='utf-8', header=not Path('data/winner_data.csv').exists())
+            df.to_csv('data/winner_data.csv', mode='a', index=False, encoding='utf-8', header=not Path('data/winner_data.csv').exists())
             imageData.clear()
 
             # Pulitzer's robots.txt has crawl-delay: 10
@@ -207,6 +206,7 @@ def main():
 
         # Get global JSON
         globalVocab = get_global_json(session)
+        print(f"Able to get global JSON successfully.")
 
         # Get a list of winner id values (nid)
         feature_photography_nid_list = get_category_nids(session, 217, 0, 30)
